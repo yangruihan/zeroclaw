@@ -2434,7 +2434,7 @@ pub async fn run(
     } else {
         None
     };
-    let native_tools = provider.supports_native_tools();
+    let native_tools = provider.supports_native_tools_for_model(&model_name, Some(config));
     let mut system_prompt = crate::channels::build_system_prompt_with_mode(
         &config.workspace_dir,
         &model_name,
@@ -2971,7 +2971,7 @@ pub async fn process_message_with_session(
     } else {
         None
     };
-    let native_tools = provider.supports_native_tools();
+    let native_tools = provider.supports_native_tools_for_model(&model_name, Some(config));
     let mut system_prompt = crate::channels::build_system_prompt_with_mode(
         &config.workspace_dir,
         &model_name,

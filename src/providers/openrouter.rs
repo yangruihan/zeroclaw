@@ -1,3 +1,4 @@
+use crate::config::schema::ModelCapabilityOverrides;
 use crate::multimodal;
 use crate::providers::traits::{
     ChatMessage, ChatRequest as ProviderChatRequest, ChatResponse as ProviderChatResponse,
@@ -7,10 +8,13 @@ use crate::tools::ToolSpec;
 use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 pub struct OpenRouterProvider {
     credential: Option<String>,
     max_tokens_override: Option<u32>,
+    /// Model capability overrides for fine-grained control.
+    model_capabilities: HashMap<String, ModelCapabilityOverrides>,
 }
 
 #[derive(Debug, Serialize)]
@@ -159,7 +163,36 @@ impl OpenRouterProvider {
         Self {
             credential: credential.map(ToString::to_string),
             max_tokens_override: max_tokens_override.filter(|value| *value > 0),
+            model_capabilities: HashMap::new(),
         }
+    }
+
+    /// Create provider with model capability overrides.
+    pub fn new_with_max_tokens_and_capabilities(
+        credential: Option<&str>,
+        max_tokens_override: Option<u32>,
+        model_capabilities: HashMap<String, ModelCapabilityOverrides>,
+    ) -> Self {
+        Self {
+            credential: credential.map(ToString::to_string),
+            max_tokens_override: max_tokens_override.filter(|value| *value > 0),
+            model_capabilities,
+        }
+    }
+
+    /// Check if a model name matches a pattern (supports partial matching).
+    fn model_matches_pattern(model: &str, pattern: &str) -> bool {
+        // Exact match
+        if model == pattern {
+            return true;
+        }
+        // Partial match: pattern is a substring of model
+        if model.contains(pattern) {
+            return true;
+        }
+        // Partial match: model name (without provider prefix) matches
+        let model_name = model.split('/').last().unwrap_or(model);
+        model_name == pattern || model_name.contains(pattern)
     }
 
     fn convert_tools(tools: Option<&[ToolSpec]>) -> Option<Vec<NativeToolSpec>> {
@@ -500,6 +533,19 @@ impl Provider for OpenRouterProvider {
 
     fn supports_native_tools(&self) -> bool {
         true
+    }
+
+    fn supports_native_tools_for_model(&self, model: &str, _config: Option<&crate::config::schema::Config>) -> bool {
+        // Check for model-specific capability override
+        for (pattern, overrides) in &self.model_capabilities {
+            if Self::model_matches_pattern(model, pattern) {
+                if let Some(native_tool_calling) = overrides.native_tool_calling {
+                    return native_tool_calling;
+                }
+            }
+        }
+        // Default to provider-level capability
+        self.supports_native_tools()
     }
 
     async fn chat_with_tools(

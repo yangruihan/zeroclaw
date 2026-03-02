@@ -744,6 +744,9 @@ pub struct ProviderRuntimeOptions {
     pub custom_provider_api_mode: Option<CompatibleApiMode>,
     pub max_tokens_override: Option<u32>,
     pub model_support_vision: Option<bool>,
+    /// Model capability overrides for providers that aggregate multiple models.
+    /// Key: model name pattern, Value: capability overrides.
+    pub model_capabilities: std::collections::HashMap<String, crate::config::schema::ModelCapabilityOverrides>,
 }
 
 impl Default for ProviderRuntimeOptions {
@@ -759,6 +762,7 @@ impl Default for ProviderRuntimeOptions {
             custom_provider_api_mode: None,
             max_tokens_override: None,
             model_support_vision: None,
+            model_capabilities: std::collections::HashMap::new(),
         }
     }
 }
@@ -1162,7 +1166,11 @@ fn create_provider_with_url_and_options(
         }
         // ── Primary providers (custom implementations) ───────
         "openrouter" => Ok(Box::new(
-            openrouter::OpenRouterProvider::new_with_max_tokens(key, options.max_tokens_override),
+            openrouter::OpenRouterProvider::new_with_max_tokens_and_capabilities(
+                key,
+                options.max_tokens_override,
+                options.model_capabilities.clone(),
+            ),
         )),
         "anthropic" => Ok(Box::new(anthropic::AnthropicProvider::new(key))),
         "openai" => Ok(Box::new(

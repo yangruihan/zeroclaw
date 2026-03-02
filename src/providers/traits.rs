@@ -397,6 +397,18 @@ pub trait Provider: Send + Sync {
         self.capabilities().native_tool_calling
     }
 
+    /// Whether provider supports native tool calls for a specific model.
+    ///
+    /// Default implementation delegates to `supports_native_tools()`. Providers
+    /// that aggregate multiple models (like OpenRouter) should override this
+    /// to check model-specific capability overrides from configuration.
+    ///
+    /// The `config` parameter provides access to model capability overrides
+    /// configured in `[provider.model_capabilities]`.
+    fn supports_native_tools_for_model(&self, _model: &str, _config: Option<&crate::config::schema::Config>) -> bool {
+        self.supports_native_tools()
+    }
+
     /// Whether provider supports multimodal vision input.
     fn supports_vision(&self) -> bool {
         self.capabilities().vision

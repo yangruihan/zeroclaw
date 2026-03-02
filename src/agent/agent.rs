@@ -324,7 +324,7 @@ impl Agent {
         let tool_dispatcher: Box<dyn ToolDispatcher> = match dispatcher_choice {
             "native" => Box::new(NativeToolDispatcher),
             "xml" => Box::new(XmlToolDispatcher),
-            _ if provider.supports_native_tools() => Box::new(NativeToolDispatcher),
+            _ if provider.supports_native_tools_for_model(&model_name, None) => Box::new(NativeToolDispatcher),
             _ => Box::new(XmlToolDispatcher),
         };
 

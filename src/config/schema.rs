@@ -416,6 +416,22 @@ pub struct ModelProviderConfig {
     pub requires_openai_auth: bool,
 }
 
+/// Model capability overrides for fine-grained control over provider features.
+///
+/// Used when a provider aggregates multiple models with different capabilities
+/// (e.g., OpenRouter), allowing per-model overrides of native tool calling support.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, Default)]
+pub struct ModelCapabilityOverrides {
+    /// Override native tool calling support for a specific model.
+    /// When `false`, forces prompt-based tool calling even if the provider
+    /// declares native tool calling support.
+    #[serde(default)]
+    pub native_tool_calling: Option<bool>,
+    /// Override vision support for a specific model.
+    #[serde(default)]
+    pub vision: Option<bool>,
+}
+
 /// Provider behavior overrides (`[provider]` section).
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, Default)]
 pub struct ProviderConfig {
@@ -437,6 +453,22 @@ pub struct ProviderConfig {
     /// Existing configs that omit `provider.transport` remain valid and fall back to defaults.
     #[serde(default)]
     pub transport: Option<String>,
+    /// Per-model capability overrides for providers that aggregate multiple models.
+    ///
+    /// Keys are model name patterns (supports partial matching). For example:
+    /// - `"stepfun/step-3.5-flash:free"` - exact match
+    /// - `"step-3.5-flash"` - partial match
+    ///
+    /// This allows disabling native tool calling for specific models that don't
+    /// support it, even when the provider (like OpenRouter) declares support.
+    ///
+    /// Example:
+    /// ```toml
+    /// [provider.model_capabilities."stepfun/step-3.5-flash:free"]
+    /// native_tool_calling = false
+    /// ```
+    #[serde(default)]
+    pub model_capabilities: HashMap<String, ModelCapabilityOverrides>,
 }
 
 // ── Delegate Agents ──────────────────────────────────────────────

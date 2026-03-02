@@ -6,6 +6,18 @@ default_provider = "ollama"
 default_model = "llama3.2"
 default_temperature = 0.7
 
+[provider]
+# Per-model capability overrides for providers that aggregate multiple models.
+# Useful for OpenRouter when using models that don't support native tool calling.
+#
+# Example: Disable native tool calling for stepfun models (free tier)
+# [provider.model_capabilities."stepfun/step-3.5-flash:free"]
+# native_tool_calling = false
+#
+# Example: Using partial pattern matching
+# [provider.model_capabilities."step-3.5-flash"]
+# native_tool_calling = false
+
 [gateway]
 port = 42617
 host = "127.0.0.1"
