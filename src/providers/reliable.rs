@@ -548,7 +548,7 @@ impl Provider for ReliableProvider {
                                     is_non_retryable(&e) || non_retryable_rate_limit;
                                 let rate_limited = is_rate_limited(&e);
                                 let failure_reason = failure_reason(rate_limited, non_retryable);
-                                let error_detail = compact_error_detail(&e);
+                                let error_detail = self.compact_error_detail(&e);
 
                                 push_failure(
                                     &mut failures,
@@ -679,7 +679,7 @@ impl Provider for ReliableProvider {
                                     is_non_retryable(&e) || non_retryable_rate_limit;
                                 let rate_limited = is_rate_limited(&e);
                                 let failure_reason = failure_reason(rate_limited, non_retryable);
-                                let error_detail = compact_error_detail(&e);
+                                let error_detail = self.compact_error_detail(&e);
 
                                 push_failure(
                                     &mut failures,
@@ -795,7 +795,7 @@ impl Provider for ReliableProvider {
                                     is_non_retryable(&e) || non_retryable_rate_limit;
                                 let rate_limited = is_rate_limited(&e);
                                 let failure_reason = failure_reason(rate_limited, non_retryable);
-                                let error_detail = compact_error_detail(&e);
+                                let error_detail = self.compact_error_detail(&e);
 
                                 push_failure(
                                     &mut failures,
