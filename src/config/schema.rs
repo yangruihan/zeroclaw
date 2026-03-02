@@ -309,6 +309,10 @@ pub struct Config {
     #[serde(default)]
     pub secrets: SecretsConfig,
 
+    /// Display and output limits configuration (`[display]`).
+    #[serde(default)]
+    pub display: DisplayConfig,
+
     /// Browser automation configuration (`[browser]`).
     #[serde(default)]
     pub browser: BrowserConfig,
@@ -1903,6 +1907,52 @@ pub struct SecretsConfig {
 impl Default for SecretsConfig {
     fn default() -> Self {
         Self { encrypt: true }
+    }
+}
+
+// ── Display Limits ───────────────────────────────────────────────
+
+/// Display and output limits configuration (`[display]` section).
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct DisplayConfig {
+    /// Maximum characters per memory context entry. Default: 800.
+    #[serde(default = "default_display_memory_entry_max_chars")]
+    pub memory_entry_max_chars: usize,
+    /// Maximum total characters for memory context. Default: 4000.
+    #[serde(default = "default_display_memory_total_max_chars")]
+    pub memory_total_max_chars: usize,
+    /// Maximum characters per file injected into workspace context. Default: 20000.
+    #[serde(default = "default_display_bootstrap_max_chars")]
+    pub bootstrap_max_chars: usize,
+    /// Maximum characters for history message content. Default: 600.
+    #[serde(default = "default_display_history_content_chars")]
+    pub history_content_max_chars: usize,
+}
+
+fn default_display_memory_entry_max_chars() -> usize {
+    2000  // Increased from 800
+}
+
+fn default_display_memory_total_max_chars() -> usize {
+    10_000  // Increased from 4000
+}
+
+fn default_display_bootstrap_max_chars() -> usize {
+    50_000  // Increased from 20_000
+}
+
+fn default_display_history_content_chars() -> usize {
+    1500  // Increased from 600
+}
+
+impl Default for DisplayConfig {
+    fn default() -> Self {
+        Self {
+            memory_entry_max_chars: default_display_memory_entry_max_chars(),
+            memory_total_max_chars: default_display_memory_total_max_chars(),
+            bootstrap_max_chars: default_display_bootstrap_max_chars(),
+            history_content_max_chars: default_display_history_content_chars(),
+        }
     }
 }
 

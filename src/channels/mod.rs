@@ -114,7 +114,8 @@ const MAX_CHANNEL_HISTORY: usize = 50;
 const AUTOSAVE_MIN_MESSAGE_CHARS: usize = 20;
 
 /// Maximum characters per injected workspace file (matches `OpenClaw` default).
-const BOOTSTRAP_MAX_CHARS: usize = 20_000;
+/// This is now configurable via [display].bootstrap_max_chars.
+const BOOTSTRAP_MAX_CHARS_DEFAULT: usize = 50_000;  // Increased from 20_000
 
 const DEFAULT_CHANNEL_INITIAL_BACKOFF_SECS: u64 = 2;
 const DEFAULT_CHANNEL_MAX_BACKOFF_SECS: u64 = 60;
@@ -132,15 +133,18 @@ const CHANNEL_HEALTH_HEARTBEAT_SECS: u64 = 30;
 const MODEL_CACHE_FILE: &str = "models_cache.json";
 const MODEL_CACHE_PREVIEW_LIMIT: usize = 10;
 const MEMORY_CONTEXT_MAX_ENTRIES: usize = 4;
-const MEMORY_CONTEXT_ENTRY_MAX_CHARS: usize = 800;
-const MEMORY_CONTEXT_MAX_CHARS: usize = 4_000;
+/// Default max chars per memory entry. Configurable via [display].memory_entry_max_chars.
+const MEMORY_CONTEXT_ENTRY_MAX_CHARS_DEFAULT: usize = 2000;  // Increased from 800
+/// Default max chars for total memory context. Configurable via [display].memory_total_max_chars.
+const MEMORY_CONTEXT_MAX_CHARS_DEFAULT: usize = 10_000;  // Increased from 4_000
 const CHANNEL_HISTORY_COMPACT_KEEP_MESSAGES: usize = 12;
-const CHANNEL_HISTORY_COMPACT_CONTENT_CHARS: usize = 600;
+/// Default max chars for history content. Configurable via [display].history_content_max_chars.
+const CHANNEL_HISTORY_COMPACT_CONTENT_CHARS_DEFAULT: usize = 1500;  // Increased from 600
 const CHANNEL_CONTEXT_TOKEN_ESTIMATE_LIMIT: usize = 90_000;
 const CHANNEL_CONTEXT_TOKEN_ESTIMATE_TARGET: usize = 80_000;
 const CHANNEL_CONTEXT_MIN_KEEP_NON_SYSTEM_MESSAGES: usize = 10;
 /// Guardrail for hook-modified outbound channel content.
-const CHANNEL_HOOK_MAX_OUTBOUND_CHARS: usize = 20_000;
+const CHANNEL_HOOK_MAX_OUTBOUND_CHARS: usize = 50_000;  // Increased from 20_000
 
 type ProviderCacheMap = Arc<Mutex<HashMap<String, Arc<dyn Provider>>>>;
 type RouteSelectionMap = Arc<Mutex<HashMap<String, ChannelRouteSelection>>>;
