@@ -1841,9 +1841,9 @@ fn compact_sender_history(ctx: &ChannelRuntimeContext, sender_key: &str) -> bool
     let mut compacted = normalize_cached_channel_turns(turns[keep_from..].to_vec());
 
     for turn in &mut compacted {
-        if turn.content.chars().count() > CHANNEL_HISTORY_COMPACT_CONTENT_CHARS {
+        if turn.content.chars().count() > CHANNEL_HISTORY_COMPACT_CONTENT_CHARS_DEFAULT {
             turn.content =
-                truncate_with_ellipsis(&turn.content, CHANNEL_HISTORY_COMPACT_CONTENT_CHARS);
+                truncate_with_ellipsis(&turn.content, CHANNEL_HISTORY_COMPACT_CONTENT_CHARS_DEFAULT);
         }
     }
 
@@ -1938,7 +1938,7 @@ fn should_skip_memory_context_entry(key: &str, content: &str) -> bool {
         return true;
     }
 
-    content.chars().count() > MEMORY_CONTEXT_MAX_CHARS
+    content.chars().count() > MEMORY_CONTEXT_MAX_CHARS_DEFAULT
 }
 
 fn is_context_window_overflow_error(err: &anyhow::Error) -> bool {
@@ -2902,15 +2902,15 @@ async fn build_memory_context(
                 continue;
             }
 
-            let content = if entry.content.chars().count() > MEMORY_CONTEXT_ENTRY_MAX_CHARS {
-                truncate_with_ellipsis(&entry.content, MEMORY_CONTEXT_ENTRY_MAX_CHARS)
+            let content = if entry.content.chars().count() > MEMORY_CONTEXT_ENTRY_MAX_CHARS_DEFAULT {
+                truncate_with_ellipsis(&entry.content, MEMORY_CONTEXT_ENTRY_MAX_CHARS_DEFAULT)
             } else {
                 entry.content.clone()
             };
 
             let line = format!("- {}: {}\n", entry.key, content);
             let line_chars = line.chars().count();
-            if used_chars + line_chars > MEMORY_CONTEXT_MAX_CHARS {
+            if used_chars + line_chars > MEMORY_CONTEXT_MAX_CHARS_DEFAULT {
                 break;
             }
 
@@ -4568,7 +4568,7 @@ pub fn build_system_prompt_with_mode(
                 Ok(None) => {
                     // No AIEOS identity loaded (shouldn't happen if is_aieos_configured returned true)
                     // Fall back to OpenClaw bootstrap files
-                    let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS);
+                    let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS_DEFAULT);
                     load_openclaw_bootstrap_files(
                         &mut prompt,
                         workspace_dir,
@@ -4581,7 +4581,7 @@ pub fn build_system_prompt_with_mode(
                     eprintln!(
                         "Warning: Failed to load AIEOS identity: {e}. Using OpenClaw format."
                     );
-                    let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS);
+                    let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS_DEFAULT);
                     load_openclaw_bootstrap_files(
                         &mut prompt,
                         workspace_dir,
@@ -4592,12 +4592,12 @@ pub fn build_system_prompt_with_mode(
             }
         } else {
             // OpenClaw format
-            let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS);
+            let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS_DEFAULT);
             load_openclaw_bootstrap_files(&mut prompt, workspace_dir, max_chars, identity_config);
         }
     } else {
         // No identity config - use OpenClaw format
-        let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS);
+        let max_chars = bootstrap_max_chars.unwrap_or(BOOTSTRAP_MAX_CHARS_DEFAULT);
         load_openclaw_bootstrap_files(&mut prompt, workspace_dir, max_chars, identity_config);
     }
 
@@ -5380,6 +5380,7 @@ pub async fn start_channels(config: Config) -> Result<()> {
         max_tokens_override: None,
         model_support_vision: config.model_support_vision,
         model_capabilities: config.provider.model_capabilities.clone(),
+        api_error_max_chars: config.display.api_error_max_chars,
     };
     let provider: Arc<dyn Provider> = Arc::from(
         create_resilient_provider_nonblocking(
@@ -6135,8 +6136,8 @@ mod tests {
         assert_eq!(kept.len(), CHANNEL_HISTORY_COMPACT_KEEP_MESSAGES);
         assert!(kept.iter().all(|turn| {
             let len = turn.content.chars().count();
-            len <= CHANNEL_HISTORY_COMPACT_CONTENT_CHARS
-                || (len <= CHANNEL_HISTORY_COMPACT_CONTENT_CHARS + 3
+            len <= CHANNEL_HISTORY_COMPACT_CONTENT_CHARS_DEFAULT
+                || (len <= CHANNEL_HISTORY_COMPACT_CONTENT_CHARS_DEFAULT + 3
                     && turn.content.ends_with("..."))
         }));
     }
@@ -10867,8 +10868,8 @@ BTC is currently around $65,000 based on latest tool output."#
     #[test]
     fn prompt_truncation() {
         let ws = make_workspace();
-        // Write a file larger than BOOTSTRAP_MAX_CHARS
-        let big_content = "x".repeat(BOOTSTRAP_MAX_CHARS + 1000);
+        // Write a file larger than BOOTSTRAP_MAX_CHARS_DEFAULT
+        let big_content = "x".repeat(BOOTSTRAP_MAX_CHARS_DEFAULT + 1000);
         std::fs::write(ws.path().join("AGENTS.md"), &big_content).unwrap();
 
         let prompt = build_system_prompt(ws.path(), "model", &[], &[], None, None);

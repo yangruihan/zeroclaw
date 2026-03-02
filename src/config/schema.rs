@@ -1927,6 +1927,9 @@ pub struct DisplayConfig {
     /// Maximum characters for history message content. Default: 600.
     #[serde(default = "default_display_history_content_chars")]
     pub history_content_max_chars: usize,
+    /// Maximum characters for API error messages before truncation. Default: 500.
+    #[serde(default = "default_display_api_error_max_chars")]
+    pub api_error_max_chars: usize,
 }
 
 fn default_display_memory_entry_max_chars() -> usize {
@@ -1945,6 +1948,10 @@ fn default_display_history_content_chars() -> usize {
     1500  // Increased from 600
 }
 
+fn default_display_api_error_max_chars() -> usize {
+    1000  // Increased from hardcoded 200
+}
+
 impl Default for DisplayConfig {
     fn default() -> Self {
         Self {
@@ -1952,6 +1959,7 @@ impl Default for DisplayConfig {
             memory_total_max_chars: default_display_memory_total_max_chars(),
             bootstrap_max_chars: default_display_bootstrap_max_chars(),
             history_content_max_chars: default_display_history_content_chars(),
+            api_error_max_chars: default_display_api_error_max_chars(),
         }
     }
 }
@@ -6559,6 +6567,7 @@ impl Default for Config {
             mcp: McpConfig::default(),
             model_support_vision: None,
             wasm: WasmConfig::default(),
+            display: DisplayConfig::default(),
         }
     }
 }
@@ -10215,6 +10224,7 @@ ws_url = "ws://127.0.0.1:3002"
             mcp: McpConfig::default(),
             model_support_vision: None,
             wasm: WasmConfig::default(),
+            display: DisplayConfig::default(),
         };
 
         let toml_str = toml::to_string_pretty(&config).unwrap();
@@ -10590,6 +10600,7 @@ tool_dispatcher = "xml"
             mcp: McpConfig::default(),
             model_support_vision: None,
             wasm: WasmConfig::default(),
+            display: DisplayConfig::default(),
         };
 
         config.save().await.unwrap();

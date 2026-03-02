@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `memory_total_max_chars` — Max total chars for memory context (default: 10000)
   - `bootstrap_max_chars` — Max chars for bootstrap content (default: 50000)
   - `history_content_max_chars` — Max chars for channel history content (default: 1500)
+  - `api_error_max_chars` — Max chars for API error messages (default: 1000)
   These replace the previous hardcoded constants and allow fine-tuning for different use cases.
 - **Provider configuration options** — New `[provider]` config fields for advanced provider control:
   - `reasoning_level` — Optional reasoning effort override for providers like OpenAI Codex

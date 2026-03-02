@@ -2535,6 +2535,7 @@ pub async fn run(
         max_tokens_override: None,
         model_support_vision: config.model_support_vision,
         model_capabilities: config.provider.model_capabilities.clone(),
+        api_error_max_chars: config.display.api_error_max_chars,
     };
 
     let provider: Box<dyn Provider> = providers::create_routed_provider_with_options(
@@ -3152,6 +3153,7 @@ pub async fn process_message_with_session(
         max_tokens_override: None,
         model_support_vision: config.model_support_vision,
         model_capabilities: config.provider.model_capabilities.clone(),
+        api_error_max_chars: config.display.api_error_max_chars,
     };
     let provider: Box<dyn Provider> = providers::create_routed_provider_with_options(
         provider_name,

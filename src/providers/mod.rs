@@ -747,6 +747,8 @@ pub struct ProviderRuntimeOptions {
     /// Model capability overrides for providers that aggregate multiple models.
     /// Key: model name pattern, Value: capability overrides.
     pub model_capabilities: std::collections::HashMap<String, crate::config::schema::ModelCapabilityOverrides>,
+    /// Max characters for API error messages before truncation.
+    pub api_error_max_chars: usize,
 }
 
 impl Default for ProviderRuntimeOptions {
@@ -763,6 +765,7 @@ impl Default for ProviderRuntimeOptions {
             max_tokens_override: None,
             model_support_vision: None,
             model_capabilities: std::collections::HashMap::new(),
+            api_error_max_chars: 200, // Default before config is loaded
         }
     }
 }
@@ -846,14 +849,21 @@ pub fn scrub_secret_patterns(input: &str) -> String {
 }
 
 /// Sanitize API error text by scrubbing secrets and truncating length.
+/// Uses default MAX_API_ERROR_CHARS limit for backward compatibility.
 pub fn sanitize_api_error(input: &str) -> String {
+    sanitize_api_error_with_limit(input, MAX_API_ERROR_CHARS)
+}
+
+/// Sanitize API error text by scrubbing secrets and truncating length.
+/// Uses custom max_chars limit from config.
+pub fn sanitize_api_error_with_limit(input: &str, max_chars: usize) -> String {
     let scrubbed = scrub_secret_patterns(input);
 
-    if scrubbed.chars().count() <= MAX_API_ERROR_CHARS {
+    if scrubbed.chars().count() <= max_chars {
         return scrubbed;
     }
 
-    let mut end = MAX_API_ERROR_CHARS;
+    let mut end = max_chars;
     while end > 0 && !scrubbed.is_char_boundary(end) {
         end -= 1;
     }
@@ -1630,7 +1640,8 @@ pub fn create_resilient_provider_with_options(
     )
     .with_api_keys(reliability.api_keys.clone())
     .with_model_fallbacks(reliability.model_fallbacks.clone())
-    .with_vision_override(options.model_support_vision);
+    .with_vision_override(options.model_support_vision)
+    .with_api_error_max_chars(options.api_error_max_chars);
 
     Ok(Box::new(reliable))
 }

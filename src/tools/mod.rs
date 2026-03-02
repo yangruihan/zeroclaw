@@ -563,6 +563,7 @@ pub fn all_tools_with_runtime(
             max_tokens_override: None,
             model_support_vision: root_config.model_support_vision,
             model_capabilities: root_config.provider.model_capabilities.clone(),
+            api_error_max_chars: root_config.display.api_error_max_chars,
         };
         let runtime_config_path = Some(root_config.config_path.clone());
         let parent_tools = Arc::new(tool_arcs.clone());

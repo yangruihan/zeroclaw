@@ -1603,6 +1603,8 @@ data: [DONE]
             custom_provider_api_mode: None,
             max_tokens_override: None,
             model_support_vision: None,
+            model_capabilities: std::collections::HashMap::new(),
+            api_error_max_chars: 200,
         };
         let provider =
             OpenAiCodexProvider::new(&options, None).expect("provider should initialize");

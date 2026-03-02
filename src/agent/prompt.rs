@@ -7,7 +7,8 @@ use chrono::Local;
 use std::fmt::Write;
 use std::path::Path;
 
-const BOOTSTRAP_MAX_CHARS: usize = 20_000;
+/// Default max chars for bootstrap files. Matches [display].bootstrap_max_chars default.
+const BOOTSTRAP_MAX_CHARS_DEFAULT: usize = 50_000;  // Increased from 20_000
 const DATETIME_HEADER: &str = "## Current Date & Time\n\n";
 
 /// Refresh the `## Current Date & Time` section in an existing system prompt.
@@ -264,10 +265,10 @@ fn inject_workspace_file(prompt: &mut String, workspace_dir: &Path, filename: &s
                 return;
             }
             let _ = writeln!(prompt, "### {filename}\n");
-            let truncated = if trimmed.chars().count() > BOOTSTRAP_MAX_CHARS {
+            let truncated = if trimmed.chars().count() > BOOTSTRAP_MAX_CHARS_DEFAULT {
                 trimmed
                     .char_indices()
-                    .nth(BOOTSTRAP_MAX_CHARS)
+                    .nth(BOOTSTRAP_MAX_CHARS_DEFAULT)
                     .map(|(idx, _)| &trimmed[..idx])
                     .unwrap_or(trimmed)
             } else {
@@ -277,7 +278,7 @@ fn inject_workspace_file(prompt: &mut String, workspace_dir: &Path, filename: &s
             if truncated.len() < trimmed.len() {
                 let _ = writeln!(
                     prompt,
-                    "\n\n[... truncated at {BOOTSTRAP_MAX_CHARS} chars — use `read` for full file]\n"
+                    "\n\n[... truncated at {BOOTSTRAP_MAX_CHARS_DEFAULT} chars — use `read` for full file]\n"
                 );
             } else {
                 prompt.push_str("\n\n");

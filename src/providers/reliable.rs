@@ -197,11 +197,13 @@ fn failure_reason(rate_limited: bool, non_retryable: bool) -> &'static str {
     }
 }
 
-fn compact_error_detail(err: &anyhow::Error) -> String {
-    super::sanitize_api_error(&err.to_string())
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ")
+impl ReliableProvider {
+    fn compact_error_detail(&self, err: &anyhow::Error) -> String {
+        super::sanitize_api_error_with_limit(&err.to_string(), self.api_error_max_chars)
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
 }
 
 fn push_failure(
@@ -242,6 +244,8 @@ pub struct ReliableProvider {
     provider_model_fallbacks: HashMap<String, Vec<String>>,
     /// Vision support override from config (`None` = defer to provider).
     vision_override: Option<bool>,
+    /// Max characters for API error messages before truncation.
+    api_error_max_chars: usize,
 }
 
 impl ReliableProvider {
@@ -259,6 +263,7 @@ impl ReliableProvider {
             model_fallbacks: HashMap::new(),
             provider_model_fallbacks: HashMap::new(),
             vision_override: None,
+            api_error_max_chars: 200, // Default, will be overridden by config
         }
     }
 
@@ -286,6 +291,12 @@ impl ReliableProvider {
             }
         }
 
+        self
+    }
+
+    /// Set max characters for API error messages.
+    pub fn with_api_error_max_chars(mut self, max_chars: usize) -> Self {
+        self.api_error_max_chars = max_chars;
         self
     }
 
@@ -412,7 +423,7 @@ impl Provider for ReliableProvider {
                                     is_non_retryable(&e) || non_retryable_rate_limit;
                                 let rate_limited = is_rate_limited(&e);
                                 let failure_reason = failure_reason(rate_limited, non_retryable);
-                                let error_detail = compact_error_detail(&e);
+                                let error_detail = self.compact_error_detail(&e);
 
                                 push_failure(
                                     &mut failures,

@@ -418,6 +418,7 @@ pub async fn run_gateway(host: &str, port: u16, config: Config) -> Result<()> {
             max_tokens_override: None,
             model_support_vision: config.model_support_vision,
             model_capabilities: config.provider.model_capabilities.clone(),
+            api_error_max_chars: config.display.api_error_max_chars,
         },
     )?);
     let model = config
