@@ -2534,6 +2534,7 @@ pub async fn run(
         custom_provider_api_mode: config.provider_api.map(|mode| mode.as_compatible_mode()),
         max_tokens_override: None,
         model_support_vision: config.model_support_vision,
+        model_capabilities: config.model_capabilities.clone(),
     };
 
     let provider: Box<dyn Provider> = providers::create_routed_provider_with_options(
@@ -2702,7 +2703,7 @@ pub async fn run(
     } else {
         None
     };
-    let native_tools = provider.supports_native_tools_for_model(&model_name, Some(config));
+    let native_tools = provider.supports_native_tools_for_model(&model_name, Some(&config));
     let mut system_prompt = crate::channels::build_system_prompt_with_mode(
         &config.workspace_dir,
         &model_name,
@@ -3150,6 +3151,7 @@ pub async fn process_message_with_session(
         custom_provider_api_mode: config.provider_api.map(|mode| mode.as_compatible_mode()),
         max_tokens_override: None,
         model_support_vision: config.model_support_vision,
+        model_capabilities: config.model_capabilities.clone(),
     };
     let provider: Box<dyn Provider> = providers::create_routed_provider_with_options(
         provider_name,
@@ -3239,7 +3241,7 @@ pub async fn process_message_with_session(
     } else {
         None
     };
-    let native_tools = provider.supports_native_tools_for_model(&model_name, Some(config));
+    let native_tools = provider.supports_native_tools_for_model(&model_name, Some(&config));
     let mut system_prompt = crate::channels::build_system_prompt_with_mode(
         &config.workspace_dir,
         &model_name,
