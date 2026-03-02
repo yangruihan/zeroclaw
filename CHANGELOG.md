@@ -23,6 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Telegram mention_only mode** — New config option `mention_only` for Telegram channel.
   When enabled, bot only responds to messages that @-mention the bot in group chats.
   Direct messages always work regardless of this setting. Default: `false`.
+- **Display configuration options** — New `[display]` config section for customizing message truncation limits:
+  - `memory_entry_max_chars` — Max chars per memory entry (default: 2000)
+  - `memory_total_max_chars` — Max total chars for memory context (default: 10000)
+  - `bootstrap_max_chars` — Max chars for bootstrap content (default: 50000)
+  - `history_content_max_chars` — Max chars for channel history content (default: 1500)
+  These replace the previous hardcoded constants and allow fine-tuning for different use cases.
+- **Provider configuration options** — New `[provider]` config fields for advanced provider control:
+  - `reasoning_level` — Optional reasoning effort override for providers like OpenAI Codex
+  - `transport` — Transport override for multi-transport providers (`"auto"`, `"websocket"`, `"sse"`)
+  - `model_capabilities` — Per-model capability overrides (e.g., disable native tool calling for specific models)
+    - `native_tool_calling` — Override native tool calling support per model
+    - `vision` — Override vision/image support per model
+  Example: `[provider.model_capabilities."stepfun/step-3.5-flash:free"]` with `native_tool_calling = false`
 
 ### Deprecated
 - `enc:` prefix for encrypted secrets — Use `enc2:` (ChaCha20-Poly1305) instead.
