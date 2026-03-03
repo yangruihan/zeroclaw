@@ -44,6 +44,7 @@ pub use traits::{
 };
 
 use crate::auth::AuthService;
+use crate::config::schema::DisplayConfig;
 use crate::plugins;
 use compatible::{AuthStyle, CompatibleApiMode, OpenAiCompatibleProvider};
 use reliable::ReliableProvider;
@@ -765,7 +766,7 @@ impl Default for ProviderRuntimeOptions {
             max_tokens_override: None,
             model_support_vision: None,
             model_capabilities: std::collections::HashMap::new(),
-            api_error_max_chars: 200, // Default before config is loaded
+            api_error_max_chars: DisplayConfig::default().api_error_max_chars,
         }
     }
 }

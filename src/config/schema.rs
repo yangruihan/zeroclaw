@@ -1949,7 +1949,7 @@ fn default_display_history_content_chars() -> usize {
 }
 
 fn default_display_api_error_max_chars() -> usize {
-    1000  // Increased from hardcoded 200
+    5000  // Increased from 1000 for better error visibility
 }
 
 impl Default for DisplayConfig {
